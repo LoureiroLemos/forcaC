@@ -6,12 +6,14 @@
 
 #define MAX_PALAVRA 100
 #define MAX_PALAVRAS 100
+#define MAX_TENTATIVAS 26 // Número máximo de letras no alfabeto
 
 // Estrutura para armazenar informações do jogo
 typedef struct {
     int tentativas;
     char palavra[MAX_PALAVRA];
     char controle[MAX_PALAVRA];
+    char letrasTentadas[MAX_TENTATIVAS];
     int chancesRestantes;
     int acertos;
 } Jogo;
@@ -49,6 +51,7 @@ Jogo *novoJogo(char palavras[MAX_PALAVRAS][MAX_PALAVRA], int totalPalavras, char
     }
 
     memset(jogo->controle, 0, sizeof(jogo->controle));
+    memset(jogo->letrasTentadas, 0, sizeof(jogo->letrasTentadas));
     srand(time(NULL));
     int nlinha = rand() % totalPalavras;
     strcpy(jogo->palavra, palavras[nlinha]);
@@ -71,12 +74,24 @@ Jogo *novoJogo(char palavras[MAX_PALAVRAS][MAX_PALAVRA], int totalPalavras, char
     return jogo;
 }
 
+// Função para exibir as letras já tentadas
+void mostrarLetrasTentadas(Jogo *jogo) {
+    printf("\nLetras já tentadas: ");
+    for (int i = 0; i < jogo->tentativas; i++) {
+        printf("%c ", jogo->letrasTentadas[i]);
+    }
+    printf("\n");
+}
+
 // Função para o jogador adivinhar letras
 void adivinhar(Jogo *jogo) {
     char letra;
     printf("\nAdivinhe uma letra: ");
     scanf(" %c", &letra);
     letra = tolower(letra);
+
+    // Registrar a letra tentada
+    jogo->letrasTentadas[jogo->tentativas++] = letra;
 
     int tamanho = strlen(jogo->palavra);
     int acertou = 0;
@@ -138,6 +153,8 @@ int main() {
         printf("A palavra tem %d letras.\n", tamanho);
 
         while (jogo->chancesRestantes > 0) {
+            mostrarLetrasTentadas(jogo); // Mostrar letras tentadas antes de cada tentativa
+
             printf("\nPalavra: ");
             for (int i = 0; i < tamanho; i++) {
                 if (jogo->controle[i] != 0) {
